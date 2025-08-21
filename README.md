@@ -1,2 +1,1 @@
-# ecoride
-Plateforme de covoiturage écologique - Projet DWWM
+# EcoRide 🌱 - Projet Développeur Web & Web Mobile
