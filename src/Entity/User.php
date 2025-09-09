@@ -39,7 +39,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ["default" => true])]
     private ?bool $actif = true;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(type: 'boolean')]
