@@ -3,12 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\VehiculeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: VehiculeRepository::class)]
-#[ORM\Table(name: '`vehicules`')]
+#[ORM\Table(name: '`vehicule`')]
 class Vehicule
 {
     #[ORM\Id]
@@ -32,22 +30,6 @@ class Vehicule
 
     public const FUEL_TYPES = ['essence', 'diesel', 'hybride', 'electrique'];
 
-    public function getFuelType(): ?string
-    {
-        return $this->fuelType;
-    }
-
-    public function setFuelType(string $fuelType): static
-    {
-        if (!in_array($fuelType, self::FUEL_TYPES)) {
-            throw new \InvalidArgumentException("Type de carburant invalide");
-        }
-        $this->fuelType = $fuelType;
-        return $this;
-    }
-
-    private ?string $energie = null;
-
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $couleur = null;
 
@@ -64,8 +46,6 @@ class Vehicule
     {
         return $this->id;
     }
-
-    // Getters et setters
 
     public function getUser(): ?User
     {
@@ -100,14 +80,17 @@ class Vehicule
         return $this;
     }
 
-    public function getEnergie(): ?string
+    public function getFuelType(): ?string
     {
-        return $this->energie;
+        return $this->fuelType;
     }
 
-    public function setEnergie(string $energie): static
+    public function setFuelType(string $fuelType): static
     {
-        $this->energie = $energie;
+        if (!in_array($fuelType, self::FUEL_TYPES, true)) {
+            throw new \InvalidArgumentException("Type de carburant invalide");
+        }
+        $this->fuelType = $fuelType;
         return $this;
     }
 

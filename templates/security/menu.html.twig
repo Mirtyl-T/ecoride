@@ -1,0 +1,13 @@
+            <nav class="header-menu">
+                <ul class="header-button">
+                    <li><a href="{{ path('app_home') }}"><button>Accueil</button></a></li>
+                    <!--<li><a href="{{ path('app_account') }}"><button>Covoiturages</button></a></li>--!>
+                    <!--<li><a href="#contact-menu"><button>Contact</button></a></li>--!>
+                    {% if app.user %}
+                        <li><a href="{{ path('app_account') }}"><button>Mon Compte</button></a></li>
+                        <li><a href="{{ path('app_logout') }}"><button>Se déconnecter</button></a></li>
+                    {% else %}
+                        <li><a href="{{ path('app_login') }}"><button>Connexion</button></a></li>
+                    {% endif %}
+                </ul>
+            </nav>

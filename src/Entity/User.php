@@ -10,10 +10,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\Vehicule;
-use App\Entity\Participation;
-use App\Entity\Preference;
-use App\Entity\Review;
-use App\Entity\Trip;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -26,32 +22,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private int $id;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    private ?string $email;
+    private ?string $email = null;
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
     #[ORM\Column(type: 'string')]
     private string $password;
-
-    // Relations
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Vehicule::class)]
-    private Collection $vehicules;
-
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Participation::class)]
-    private Collection $participations;
-
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Preference::class)]
-    private Collection $preferences;
-
-    #[ORM\OneToMany(mappedBy: 'reviewer', targetEntity: Review::class)]
-    private Collection $reviewsGiven;
-
-    #[ORM\OneToMany(mappedBy: 'driver', targetEntity: Review::class)]
-    private Collection $reviewsReceived;
-
-    #[ORM\OneToMany(mappedBy: 'driver', targetEntity: Trip::class)]
-    private Collection $trips;
 
     #[ORM\Column(length: 50, unique: true)]
     private ?string $username = null;
@@ -66,15 +43,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeInterface $date_creation = null;
 
     #[ORM\Column(type: 'boolean')]
-    private $isVerified = false;
+    private bool $isVerified = false;
 
-    public const roles = [
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Vehicule::class, cascade: ['persist', 'remove'])]
+    private Collection $vehicules;
+
+    public function __construct()
+    {
+        $this->vehicules = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, Vehicule>
+     */
+    public function getVehicules(): Collection
+    {
+        return $this->vehicules;
+    }
+
+    public function addVehicule(Vehicule $vehicule): self
+    {
+        if (!$this->vehicules->contains($vehicule)) {
+            $this->vehicules[] = $vehicule;
+            $vehicule->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVehicule(Vehicule $vehicule): self
+    {
+        if ($this->vehicules->removeElement($vehicule)) {
+            if ($vehicule->getUser() === $this) {
+                $vehicule->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public const ROLES = [
         'ROLE_USER',
         'ROLE_CHAUFFEUR',
         'ROLE_PASSAGER',
         'ROLE_EMPLOYE',
         'ROLE_ADMIN'
-
     ];
 
     public function getId(): ?int
@@ -90,27 +103,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * The public representation of the user (e.g. a username, an email address, etc.)
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'utilisateur';
+
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
 
         return array_unique($roles);
     }
@@ -118,17 +125,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): self
     {
         foreach ($roles as $role) {
-            if (!in_array($role, self::roles, true)) {
+            if (!in_array($role, self::ROLES, true)) {
                 throw new \InvalidArgumentException("Role invalide : $role");
             }
         }
+
         $this->roles = $roles;
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -137,54 +142,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
-    public function __construct()
-    {
-        $this->vehicules = new ArrayCollection();
-        $this->participations = new ArrayCollection();
-        $this->preferences = new ArrayCollection();
-        $this->reviewsGiven = new ArrayCollection();
-        $this->reviewsReceived = new ArrayCollection();
-        $this->trips = new ArrayCollection();
-    }
 
-    // Getters et setters pour les champs de sécurité
     public function eraseCredentials(): void {}
 
-    // Getters pour les relations
-    public function getVehicules(): Collection
-    {
-        return $this->vehicules;
-    }
-
-    public function getParticipations(): Collection
-    {
-        return $this->participations;
-    }
-
-    public function getPreferences(): Collection
-    {
-        return $this->preferences;
-    }
-
-    public function getReviewsGiven(): Collection
-    {
-        return $this->reviewsGiven;
-    }
-
-    public function getReviewsReceived(): Collection
-    {
-        return $this->reviewsReceived;
-    }
-
-    public function getTrips(): Collection
-    {
-        return $this->trips;
-    }
-
-    // Getters et setters pour les champs supplémentaires
     public function getUsername(): ?string
     {
         return $this->username;
@@ -193,18 +155,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-        return $this;
-    }
-
-    public function getRole(): ?string
-    {
-        return $this->role;
-        $roles[] = 'UTILISATEUR';
-    }
-
-    public function setRole(string $role): static
-    {
-        $this->role = $role;
         return $this;
     }
 
@@ -249,7 +199,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
-
         return $this;
     }
 }

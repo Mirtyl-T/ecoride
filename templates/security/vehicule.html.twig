@@ -1,0 +1,60 @@
+{# templates/security/vehicule.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes véhicules{% endblock %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+    <h1>Mes véhicules</h1>
+
+    {# Formulaire d’ajout #}
+    <h2>Ajouter un véhicule</h2>
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-success mt-2">Ajouter</button>
+    {{ form_end(form) }}
+
+    <hr>
+
+    {# Tableau des véhicules existants #}
+    <h2>Mes véhicules enregistrés</h2>
+    {% if vehicules is not empty %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Marque</th>
+                    <th>Modèle</th>
+                    <th>Immatriculation</th>
+                    <th>Carburant</th>
+                    <th>Places</th>
+                    <th>Date immatriculation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for vehicule in vehicules %}
+                <tr>
+                    <td>{{ vehicule.marque }}</td>
+                    <td>{{ vehicule.modele }}</td>
+                    <td>{{ vehicule.immatriculation }}</td>
+                    <td>{{ vehicule.fuelType }}</td>
+                    <td>{{ vehicule.nbPlaces }}</td>
+                    <td>{{ vehicule.dateImmat ? vehicule.dateImmat|date('d/m/Y') : '-' }}</td>
+                    <td>
+                        {# Lien vers la page d’édition #}
+                        <a href="{{ path('vehicule_edit', {id: vehicule.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+
+                        {# Formulaire de suppression #}
+                        <form method="post" action="{{ path('vehicule_delete', {id: vehicule.id}) }}" style="display:inline-block" onsubmit="return confirm('Supprimer ce véhicule ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ vehicule.id) }}">
+                            <button class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun véhicule enregistré.</p>
+    {% endif %}
+{% endblock %}

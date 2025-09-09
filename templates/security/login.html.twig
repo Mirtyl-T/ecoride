@@ -2,16 +2,18 @@
 
 
 {% block body %}
-
+    {% include 'security/menu.html.twig' %}
+    
     {% if error %}
         <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
     {% endif %}
 
-    <h1>Sign in</h1>
+    <h1>Se connecter</h1>
     <form action="{{ path('app_login') }}" method="post">
 
-        <label for="username">Adresse e-mail : </label>
-        <input type="text" name="username" id="username" name="_username" value="{{ last_username }}" required/> <br><br>
+        <label for="username">Email ou Nom d'utilisateur</label>
+            <input type="text" id="username" name="_username" required autofocus>
+        <br><br>
 
 
         <label for="password">mot de passe  : </label>
