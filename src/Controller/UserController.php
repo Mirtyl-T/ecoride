@@ -30,9 +30,9 @@ public function index(Request $request, EntityManagerInterface $em, UserPassword
     $form->handleRequest($request);
 
     if ($form->isSubmitted()) {
-        dump('Formulaire soumis'); // debug
+        dump('Formulaire soumis'); 
         if ($form->isValid()) {
-            dump('Formulaire valide'); // debug
+            dump('Formulaire valide'); 
 
             $plainPassword = $form->get('plainPassword')->getData();
             if ($plainPassword) {
@@ -46,7 +46,7 @@ public function index(Request $request, EntityManagerInterface $em, UserPassword
             $this->addFlash('success', 'Profil mis à jour.');
             return $this->redirectToRoute('app_home');
         } else {
-            dump($form->getErrors(true, false)); // debug erreurs
+            dump($form->getErrors(true, false)); 
         }
     }
 
@@ -54,10 +54,32 @@ public function index(Request $request, EntityManagerInterface $em, UserPassword
         $vehiculeForm = $this->createForm(VehiculeType::class, new Vehicule())->createView();
 
         return $this->render('security/account.html.twig', [
-            'form' => $form->createView(),   // formulaire User
+            'form' => $form->createView(),   
             'vehicules' => $vehicules,
             'user' => $user,
-            'vehiculeForm' => $vehiculeForm,    // formulaire Véhicule
+            'vehiculeForm' => $vehiculeForm,    
+        ]);
+    }
+
+    public function editProfile(Request $request, User $user): Response
+    {
+        $form = $this->createForm(UserProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $hiddenRoles = array_filter($user->getRoles(), function($role) {
+                return in_array($role, ['ROLE_EMPLOYE', 'ROLE_ADMIN']);
+            });
+            
+            $newRoles = array_merge($form->get('roles')->getData(), $hiddenRoles);
+            $user->setRoles(array_unique($newRoles));
+            
+            $entityManager->flush();
+            
+        }
+        
+        return $this->render('profile/edit.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

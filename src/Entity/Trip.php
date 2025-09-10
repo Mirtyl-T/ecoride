@@ -11,12 +11,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: '`trips`')]
 class Trip
 {
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    // Relations ManyToOne
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trips')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $driver = null;
@@ -25,7 +25,6 @@ class Trip
     #[ORM\JoinColumn(nullable: false)]
     private ?Vehicule $vehicule = null;
 
-    // Colonnes simples
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $ville_depart = null;
 
@@ -46,6 +45,12 @@ class Trip
 
     #[ORM\Column(type: "string", length: 20)]
     private ?string $status = 'prévu';
+    #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Participation::class)]
+    private Collection $participations;
+
+    #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Review::class)]
+    private Collection $reviews;
+
 
     public const STATUSES = ['prévu', 'démarré', 'terminé', 'annulé'];
 
@@ -63,12 +68,6 @@ class Trip
         return $this;
     }
 
-    // Relations OneToMany
-    #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Participation::class)]
-    private Collection $participations;
-
-    #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Review::class)]
-    private Collection $reviews;
 
 
     public function __construct()
@@ -77,7 +76,6 @@ class Trip
         $this->reviews = new ArrayCollection();
     }
 
-    // Getters et setters
     public function getId(): ?int
     {
         return $this->id;

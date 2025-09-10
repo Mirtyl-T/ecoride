@@ -14,22 +14,18 @@ class Review
     #[ORM\Column]
     private ?int $id = null;
 
-    // Relation ManyToOne vers Trip
     #[ORM\ManyToOne(targetEntity: Trip::class, inversedBy: 'reviews')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Trip $trip = null;
 
-    // Relation ManyToOne vers User qui écrit la review
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reviewsGiven')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $reviewer = null;
 
-    // Relation ManyToOne vers User qui reçoit la review
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reviewsReceived')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $driver = null;
 
-    // Colonnes simples
     #[ORM\Column(type: 'smallint', nullable: true)]
     private ?int $note = null;
 
@@ -39,12 +35,39 @@ class Review
     #[ORM\Column(type: 'boolean', options: ["default" => false])]
     private ?bool $valide = false;
 
-    // Constructor
-    public function __construct()
+    #[ORM\Column(type: 'boolean', options: ["default" => false])]
+    private bool $isIncident = false;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $incidentDescription = null;
+
+    #[ORM\Column(length: 20)]
+    private string $etat = 'en_attente';
+
+    public function isIncident(): bool
     {
+        return $this->isIncident;
     }
 
-    // Getters et setters
+    public function setIsIncident(bool $isIncident): static
+    {
+        $this->isIncident = $isIncident;
+        return $this;
+    }
+
+    public function getIncidentDescription(): ?string
+    {
+        return $this->incidentDescription;
+    }
+
+    public function setIncidentDescription(?string $incidentDescription): static
+    {
+        $this->incidentDescription = $incidentDescription;
+        return $this;
+    }
+
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -113,6 +136,17 @@ class Review
     public function setValide(bool $valide): static
     {
         $this->valide = $valide;
+        return $this;
+    }
+
+    public function getEtat(): ?string
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(string $etat): self
+    {
+        $this->etat = $etat;
         return $this;
     }
 }

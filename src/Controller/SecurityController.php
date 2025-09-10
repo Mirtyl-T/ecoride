@@ -1,5 +1,4 @@
 <?php
-// src/Controller/SecurityController.php
 namespace App\Controller;
 
 use App\Entity\User;
@@ -21,9 +20,7 @@ class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // Récupère la dernière erreur de connexion (si elle existe)
         $error = $authenticationUtils->getLastAuthenticationError();
-        // Dernier email/username utilisé
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
@@ -43,20 +40,16 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // on récupère le mot de passe non haché
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // on le hache
             $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
             $user->setPassword($hashedPassword);
 
-            // rôle par défaut
             $user->setRoles(['ROLE_USER']);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // après inscription → redirection vers login
             return $this->redirectToRoute('app_login');
         }
 
@@ -72,17 +65,13 @@ class SecurityController extends AbstractController
     }
     public function someAction(Security $security): Response
         {
-            // logout the user in on the current firewall
             $response = $security->logout();
 
-            // you can also disable the csrf logout
             $response = $security->logout(false);
 
-            // ... return $response (if set) or e.g. redirect to the homepage
         }
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        // Redirection vers la route 'home'
         return new RedirectResponse($this->urlGenerator->generate('home'));
     }
     

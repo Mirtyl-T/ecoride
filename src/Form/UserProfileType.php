@@ -34,11 +34,13 @@ class UserProfileType extends AbstractType
                     'Chauffeur'   => 'ROLE_CHAUFFEUR',
                     'Passager'    => 'ROLE_PASSAGER',
                     'Utilisateur' => 'ROLE_USER',
-                    'Administrateur' => 'ROLE_ADMIN', // optionnel
+
                 ],
                 'multiple' => true,
                 'expanded' => false,
             ]);
+
+        
 
     }
 }

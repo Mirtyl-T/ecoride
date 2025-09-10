@@ -13,11 +13,17 @@ class Vehicule
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
-
-    // Relation ManyToOne avec User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'vehicules')]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $fumeur = false;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $animaux = false;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $preferences = null;
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $marque = null;
@@ -135,6 +141,39 @@ class Vehicule
     public function setNbPlaces(?int $nb_places): static
     {
         $this->nb_places = $nb_places;
+        return $this;
+    }
+
+    public function isFumeur(): bool
+    {
+        return $this->fumeur;
+    }
+
+    public function setFumeur(bool $fumeur): static
+    {
+        $this->fumeur = $fumeur;
+        return $this;
+    }
+
+    public function isAnimaux(): bool
+    {
+        return $this->animaux;
+    }
+
+    public function setAnimaux(bool $animaux): static
+    {
+        $this->animaux = $animaux;
+        return $this;
+    }
+
+    public function getPreferences(): ?string
+    {
+        return $this->preferences;
+    }
+
+    public function setPreferences(?string $preferences): static
+    {
+        $this->preferences = $preferences;
         return $this;
     }
 }

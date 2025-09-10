@@ -48,9 +48,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Vehicule::class, cascade: ['persist', 'remove'])]
     private Collection $vehicules;
 
+    #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: Review::class)]
+    private $reviewsGiven;
+
+    #[ORM\OneToMany(mappedBy: "driver", targetEntity: Review::class)]
+    private $reviewsReceived;
+
+    #[ORM\OneToMany(mappedBy: "driver", targetEntity: Trip::class)]
+    private $trips;    
+
+    #[ORM\Column(type: 'boolean')]
+    private $isSuspended = false;
+
+    public function isEnabled(): bool
+    {
+        return !$this->isSuspended;
+    }
+
+    public function getIsSuspended(): ?bool
+    {
+        return $this->isSuspended;
+    }
+
+    public function setIsSuspended(bool $isSuspended): self
+    {
+        $this->isSuspended = $isSuspended;
+        return $this;
+    }
+
+
     public function __construct()
     {
         $this->vehicules = new ArrayCollection();
+        $this->date_creation = new \DateTime();
+        $this->reviewsGiven = new ArrayCollection();
+        $this->reviewsReceived = new ArrayCollection();
+        $this->trips = new ArrayCollection();
     }
 
     /**
@@ -129,6 +162,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 throw new \InvalidArgumentException("Role invalide : $role");
             }
         }
+           if (in_array('ROLE_ADMIN', $roles, true) && in_array('ROLE_EMPLOYE', $roles, true)) {
+                throw new \InvalidArgumentException("ROLE_ADMIN et ROLE_EMPLOYE sont exclusifs.");
+        }
 
         $this->roles = $roles;
         return $this;
@@ -179,6 +215,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->actif = $actif;
         return $this;
     }
+
 
     public function getDateCreation(): ?\DateTimeInterface
     {

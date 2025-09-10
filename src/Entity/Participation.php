@@ -14,17 +14,14 @@ class Participation
     #[ORM\Column]
     private ?int $id = null;
 
-    // Relation ManyToOne vers Trip
     #[ORM\ManyToOne(targetEntity: Trip::class, inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Trip $trip = null;
 
-    // Relation ManyToOne vers User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
-    // Colonnes simples
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $date_participation = null;
 
@@ -47,12 +44,7 @@ class Participation
         return $this;
     }
 
-    // Constructor
-    public function __construct()
-    {
-    }
 
-    // Getters et setters
     public function getId(): ?int
     {
         return $this->id;

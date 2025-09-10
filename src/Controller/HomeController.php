@@ -1,5 +1,4 @@
 <?php
-// src/Controller/HomeController.php
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +12,7 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index() : Response
     {
-        $user = $this->getUser(); // utilisateur connecté, ou null si pas connecté
+        $user = $this->getUser(); 
 
         return $this->render('security/index.html.twig');
 

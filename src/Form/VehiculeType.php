@@ -11,6 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class VehiculeType extends AbstractType
 {
@@ -37,6 +39,23 @@ class VehiculeType extends AbstractType
                 'label' => 'Date d’immatriculation',
                 'widget' => 'single_text',
                 'required' => false
+            ])
+
+            ->add('fumeur', CheckboxType::class, [
+                'label' => 'Fumeur autorisé',
+                'required' => false,
+            ])
+            ->add('animaux', CheckboxType::class, [
+                'label' => 'Animaux acceptés',
+                'required' => false,
+            ])
+            ->add('preferences', TextType::class, [
+                'label' => 'Autres préférences',
+                    'required' => false,
+                    'attr' => [
+                        'placeholder' => 'Exemple : Musique, pauses fréquentes, climatisation…',
+                        'rows' => 3,
+                    ]
             ]);
     }
 

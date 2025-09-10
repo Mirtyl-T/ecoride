@@ -14,24 +14,18 @@ class Preference
     #[ORM\Column]
     private ?int $id = null;
 
-    // Relation ManyToOne vers User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'preferences')]
     #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?User $user = null;
 
-    // Colonnes simples
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $libelle = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $valeur = null;
 
-    // Constructor
-    public function __construct()
-    {
-    }
 
-    // Getters et setters
+
     public function getId(): ?int
     {
         return $this->id;
