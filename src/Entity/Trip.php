@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
-#[ORM\Table(name: '`trips`')]
+#[ORM\Table(name: '`trip`')]
 class Trip
 {
     #[ORM\Id]
@@ -16,7 +16,7 @@ class Trip
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trips')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trip')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $driver = null;
 
@@ -166,4 +166,7 @@ class Trip
     {
         return $this->participations;
     }
+
+
+
 }

@@ -2,28 +2,32 @@
 
 namespace App\Controller;
 
+use App\Document\Review;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Document\Review;
-use App\Entity\User;
-use App\Entity\Trip;
-use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'admin_dashboard')]
-    public function dashboard(EntityManagerInterface $em): Response
+    public function dashboard(EntityManagerInterface $em, DocumentManager $dm): Response
     {
+        // Users SQL
         $employes = $em->getRepository(User::class)->findAll();
-        $reviews = $em->getRepository(Review::class)->findBy(['etat' => 'en_attente']);
-        $incidents = $em->getRepository(Review::class)->findBy([
+
+        // Reviews MongoDB
+        $reviews = $dm->getRepository(Review::class)->findBy(['etat' => 'en_attente']);
+        $incidents = $dm->getRepository(Review::class)->findBy([
             'etat' => 'en_attente',
             'isIncident' => true,
         ]);
 
+        // Stats Trips SQL
         $conn = $em->getConnection();
         $sql = "SELECT MONTH(date_depart) as mois, COUNT(*) as total FROM trips GROUP BY mois";
         $stmt = $conn->prepare($sql);
@@ -68,6 +72,7 @@ class AdminController extends AbstractController
         $this->addFlash('success', 'Compte réactivé avec succès !');
         return $this->redirectToRoute('admin_dashboard');
     }
+
     #[Route('/admin/role/employe/{id}', name: 'admin_role_employe')]
     public function assignEmployeRole(int $id, EntityManagerInterface $em): Response
     {
@@ -78,12 +83,10 @@ class AdminController extends AbstractController
         }
 
         $roles = $user->getRoles();
-
         if (!in_array('ROLE_EMPLOYE', $roles, true)) {
             $roles[] = 'ROLE_EMPLOYE';
-            $user->setRoles($roles);
+            $user->setRoles(array_unique($roles));
             $em->flush();
-
             $this->addFlash('success', 'Utilisateur promu en employé avec succès !');
         } else {
             $this->addFlash('info', 'Cet utilisateur est déjà employé.');
@@ -91,6 +94,7 @@ class AdminController extends AbstractController
 
         return $this->redirectToRoute('admin_dashboard');
     }
+
     #[Route('/admin/role/remove-employe/{id}', name: 'admin_remove_role_employe')]
     public function removeEmployeRole(int $id, EntityManagerInterface $em): Response
     {
@@ -101,12 +105,10 @@ class AdminController extends AbstractController
         }
 
         $roles = $user->getRoles();
-
         if (in_array('ROLE_EMPLOYE', $roles, true)) {
             $roles = array_filter($roles, fn($role) => $role !== 'ROLE_EMPLOYE');
-            $user->setRoles($roles);
+            $user->setRoles(array_values($roles)); // réindexer
             $em->flush();
-
             $this->addFlash('success', 'Le rôle employé a été retiré à cet utilisateur.');
         } else {
             $this->addFlash('info', 'Cet utilisateur n\'est pas employé.');
@@ -114,4 +116,39 @@ class AdminController extends AbstractController
 
         return $this->redirectToRoute('admin_dashboard');
     }
+
+    // Exemple : valider une Review MongoDB
+    #[Route('/admin/review/valider/{id}', name: 'admin_valider_review')]
+    public function validerReview(string $id, DocumentManager $dm): Response
+    {
+        $review = $dm->getRepository(Review::class)->find($id);
+
+        if (!$review) {
+            throw $this->createNotFoundException('Review introuvable.');
+        }
+
+        $review->setEtat('valide');
+        $dm->flush();
+
+        $this->addFlash('success', 'Review validée avec succès !');
+        return $this->redirectToRoute('admin_dashboard');
+    }
+
+    // Exemple : supprimer une Review MongoDB
+    #[Route('/admin/review/supprimer/{id}', name: 'admin_supprimer_review')]
+    public function supprimerReview(string $id, DocumentManager $dm): Response
+    {
+        $review = $dm->getRepository(Review::class)->find($id);
+
+        if (!$review) {
+            throw $this->createNotFoundException('Review introuvable.');
+        }
+
+        $dm->remove($review);
+        $dm->flush();
+
+        $this->addFlash('success', 'Review supprimée avec succès !');
+        return $this->redirectToRoute('admin_dashboard');
+    }
+
 }

@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{% include 'security/menu.html.twig' %}
+
+<h1>Rechercher un trajet</h1>
+
+{{ form_start(form, { method: 'get' }) }}
+    {{ form_row(form.villeDepart) }}
+    {{ form_row(form.villeArrivee) }}
+    {{ form_row(form.dateDepart) }}
+    {{ form_row(form.prixMax) }}
+    {{ form_row(form.placesMin) }}
+    {{ form_row(form.preferences) }}
+    {{ form_row(form.typeFuel) }}
+    <button type="submit" class="btn btn-primary">Rechercher</button>
+{{ form_end(form) }}
+
+<h2>Résultats</h2>
+{% if not searchPerformed %}
+    <p>Veuillez lancer une recherche.</p>
+{% elseif trips is empty %}
+    <p>Aucun trajet trouvé.</p>
+{% else %}
+    <ul>
+        {% for trip in trips %}
+            <li>
+                <a href="{{ path('trip_show', {id: trip.id}) }}">
+                    {{ trip.villeDepart }} - {{ trip.villeArrivee }}
+                    — {{ trip.dateDepart ? trip.dateDepart|date('d/m/Y H:i') : 'Date non définie' }}
+                    — {{ trip.prix }} crédits
+                    — Places restantes : {{ trip.placesDispo }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
