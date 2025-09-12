@@ -8,16 +8,26 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TripRepository::class)]
+<<<<<<< HEAD
 #[ORM\Table(name: '`trips`')]
 class Trip
 {
     
+=======
+#[ORM\Table(name: '`trip`')]
+class Trip
+{
+>>>>>>> ancien-master
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
+<<<<<<< HEAD
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trips')]
+=======
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'trip')]
+>>>>>>> ancien-master
     #[ORM\JoinColumn(nullable: false)]
     private ?User $driver = null;
 
@@ -45,6 +55,7 @@ class Trip
 
     #[ORM\Column(type: "string", length: 20)]
     private ?string $status = 'prévu';
+<<<<<<< HEAD
     #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Participation::class)]
     private Collection $participations;
 
@@ -74,6 +85,17 @@ class Trip
     {
         $this->participations = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+=======
+
+    #[ORM\OneToMany(mappedBy: 'trip', targetEntity: Participation::class)]
+    private Collection $participations;
+
+    public const STATUSES = ['prévu', 'démarré', 'terminé', 'annulé'];
+
+    public function __construct()
+    {
+        $this->participations = new ArrayCollection();
+>>>>>>> ancien-master
     }
 
     public function getId(): ?int
@@ -169,6 +191,22 @@ class Trip
         return $this;
     }
 
+<<<<<<< HEAD
+=======
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        if (!in_array($status, self::STATUSES, true)) {
+            throw new \InvalidArgumentException("Statut invalide : $status");
+        }
+        $this->status = $status;
+        return $this;
+    }
+>>>>>>> ancien-master
 
     public function getParticipations(): Collection
     {
@@ -176,8 +214,13 @@ class Trip
     }
 
 
+<<<<<<< HEAD
     public function getReviews(): Collection
     {
         return $this->reviews;
     }
 }
+=======
+
+}
+>>>>>>> ancien-master

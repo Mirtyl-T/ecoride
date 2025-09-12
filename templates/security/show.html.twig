@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du trajet{% endblock %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+
+    <h1>Détails du trajet</h1>
+    <h2>{{ trip.villeDepart }} → {{ trip.villeArrivee }}</h2>
+
+    <ul>
+        <li><strong>Date et heure :</strong> {{ trip.dateDepart ? trip.dateDepart|date('d/m/Y H:i') : 'Non défini' }}</li>
+        <li><strong>Places disponibles :</strong> {{ trip.placesDispo }}</li>
+        <li><strong>Prix :</strong> {{ trip.prix }} crédits</li>
+    </ul>
+
+    <h3>Chauffeur</h3>
+    {% set chauffeur = trip.driver %}
+    <ul>
+        <li><strong>Nom :</strong> {{ chauffeur ? chauffeur.username : 'Non défini' }}</li>
+    </ul>
+
+    <h3>Véhicule</h3>
+    {% set vehicule = trip.vehicule %}
+    <ul>
+        <li><strong>Marque :</strong> {{ vehicule ? vehicule.marque : 'Non défini' }}</li>
+        <li><strong>Modèle :</strong> {{ vehicule ? vehicule.modele : 'Non défini' }}</li>
+        <li><strong>Couleur :</strong> {{ vehicule ? vehicule.couleur : 'Non défini' }}</li>
+        <li><strong>Immatriculation :</strong> {{ vehicule ? vehicule.immatriculation : 'Non défini' }}</li>
+    </ul>
+
+    <p>
+        <a href="{{ path('trip_list') }}">← Retour à la liste des trajets</a>
+    </p>
+{% endblock %}

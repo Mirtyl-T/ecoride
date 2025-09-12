@@ -4,7 +4,11 @@
 
 {% block body %}
 
+<<<<<<< HEAD
     {% include 'security/menu.html.twig' %}
+=======
+{% include 'security/menu.html.twig' %}
+>>>>>>> ancien-master
 
 <div class="example-wrapper">
 
@@ -21,6 +25,18 @@
     </header>
 
     <main>
+<<<<<<< HEAD
+=======
+        <section class="recherche-section">
+            <h2>Rechercher un itinéraire</h2>
+                <form class="form-recherche" action="{{ path('trip_list') }}" method="get">
+                    <input type="text" name="search_trip[villeDepart]" placeholder="Ville de départ" required>
+                    <input type="text" name="search_trip[villeArrivee]" placeholder="Ville d'arrivée" required>
+                    <input type="date" name="search_trip[dateDepart]" required min="{{ 'now'|date('Y-m-d') }}">
+                    <button type="submit">Rechercher</button>
+                </form>
+        </section>
+>>>>>>> ancien-master
         <section class="accueil-menu">
             <div>
                 <a class="photo-accueil" href="#" aria-label="Photo d'illustration page d'Accueil">

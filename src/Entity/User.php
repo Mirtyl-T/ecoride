@@ -48,12 +48,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Vehicule::class, cascade: ['persist', 'remove'])]
     private Collection $vehicules;
 
+<<<<<<< HEAD
     #[ORM\OneToMany(mappedBy: "reviewer", targetEntity: Review::class)]
     private $reviewsGiven;
 
     #[ORM\OneToMany(mappedBy: "driver", targetEntity: Review::class)]
     private $reviewsReceived;
 
+=======
+>>>>>>> ancien-master
     #[ORM\OneToMany(mappedBy: "driver", targetEntity: Trip::class)]
     private $trips;    
 
@@ -81,8 +84,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->vehicules = new ArrayCollection();
         $this->date_creation = new \DateTime();
+<<<<<<< HEAD
         $this->reviewsGiven = new ArrayCollection();
         $this->reviewsReceived = new ArrayCollection();
+=======
+>>>>>>> ancien-master
         $this->trips = new ArrayCollection();
     }
 

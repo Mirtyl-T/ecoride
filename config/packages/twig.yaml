@@ -1,5 +1,9 @@
 twig:
+<<<<<<< HEAD
     default_path: '%kernel.project_dir%/templates'
+=======
+    file_name_pattern: '*.twig'
+>>>>>>> ancien-master
 
 when@test:
     twig:
