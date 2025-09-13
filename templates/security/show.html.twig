@@ -26,10 +26,50 @@
         <li><strong>Marque :</strong> {{ vehicule ? vehicule.marque : 'Non défini' }}</li>
         <li><strong>Modèle :</strong> {{ vehicule ? vehicule.modele : 'Non défini' }}</li>
         <li><strong>Couleur :</strong> {{ vehicule ? vehicule.couleur : 'Non défini' }}</li>
+        <li><strong>Carburant :</strong> {{ vehicule ? vehicule.fuelType : 'Non défini' }}</li>
         <li><strong>Immatriculation :</strong> {{ vehicule ? vehicule.immatriculation : 'Non défini' }}</li>
     </ul>
+    <h3>Passagers</h3>
+    
+    {% if trip.participations is empty %}
+        <p>Aucun passager pour le moment.</p>
+    {% else %}
+        <ul>
+            {% for participation in trip.participations %}
+                <li>
+                    {{ participation.user.username }} 
+                    — Réservé le {{ participation.dateParticipation|date('d/m/Y H:i') }}
+                    — Statut : {{ participation.statut }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% set dejaInscrit = false %}
 
+    {% for participation in trip.participations %}
+        {% if participation.user.id == app.user.id %}
+            {% set dejaInscrit = true %}
+        {% endif %}
+    {% endfor %}
+    {% if app.user %}
+        {% if dejaInscrit %}
+            <p class="text-warning">Vous avez déjà réservé ce trajet.</p>
+        {% else %}
+            <a href="{{ path('trip_reserve', {id: trip.id}) }}" class="btn btn-primary">
+                Réserver ce trajet
+            </a>
+        {% endif %}
+    {% else %}
+        <p>
+            <a href="{{ path('app_login') }}">Connectez-vous</a> pour réserver ce trajet.
+        </p>
+    {% endif %}
+    {% if dejaInscrit %}
+        <a href="{{ path('trip_cancel', {id: trip.id}) }}" class="btn btn-danger">
+            Annuler ma réservation
+        </a>
+    {% endif %}
     <p>
-        <a href="{{ path('trip_list') }}">← Retour à la liste des trajets</a>
+        <a href="{{ path('trip_list') }}"> - Retour à la liste des trajets</a>
     </p>
 {% endblock %}

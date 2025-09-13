@@ -197,6 +197,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function addCredits(int $amount): self
+    {
+        $this->credits += $amount;
+        return $this;
+    }
+
+    public function removeCredits(int $amount): self
+    {
+        $this->credits -= $amount;
+        return $this;
+    }
     public function isActif(): ?bool
     {
         return $this->actif;

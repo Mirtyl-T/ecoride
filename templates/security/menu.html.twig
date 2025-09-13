@@ -9,11 +9,17 @@
                     {% else %}
                         <li><a href="{{ path('app_login') }}"><button>Connexion</button></a></li>
                     {% endif %}
+                    <li><a href="{{ path('user_history') }}"><button>Historique</button></a></li>
+
                     {% if is_granted('ROLE_EMPLOYE') %}
                         <li><a href="{{ path('app_review') }}"><button>Employé</button></a></li>
                     {% endif %}
                     {% if is_granted('ROLE_ADMIN') %}
                         <li><a href="{{ path('admin_dashboard') }}"><button>Administrateur</button></a></li>
                     {% endif %}
+                    {% if is_granted('ROLE_CHAUFFEUR') %}
+                        <li><a href="{{ path('trip_new') }}">Créer un trajet</a></li>
+                    {% endif %}
+
                 </ul>
             </nav>

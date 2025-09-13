@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+    <h1>Créer un nouveau trajet</h1>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+
+        <div class="form-group">
+            {{ form_row(form.villeDepart) }}
+            {{ form_row(form.villeArrivee) }}
+            {{ form_row(form.dateDepart) }}
+            {{ form_row(form.dateArrivee) }}
+            {{ form_row(form.prix) }}
+            {{ form_row(form.placesDispo) }}
+            {{ form_row(form.vehicule) }}
+        </div>
+
+        <button class="btn btn-success">Créer</button>
+    {{ form_end(form) }}
+{% endblock %}

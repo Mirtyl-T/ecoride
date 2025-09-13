@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon historique{% endblock %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+
+    <h1>Mon historique</h1>
+
+    <h2>En tant que passager</h2>
+    {% if participations is empty %}
+        <p>Vous n’avez réservé aucun trajet.</p>
+    {% else %}
+        <ul>
+            {% for p in participations %}
+                <li>
+                    {{ p.trip.villeDepart }} → {{ p.trip.villeArrivee }}
+                    le {{ p.trip.dateDepart|date('d/m/Y H:i') }}
+                    — Statut: {{ p.statut }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {%if is_granted('ROLE_CHAUFFEUR')%}
+        <h2>En tant que chauffeur</h2>
+        {% if trips is empty %}
+            <p>Vous n’avez organisé aucun trajet.</p>
+        {% else %}
+            <ul>
+                {% for t in trips %}
+                    <li>
+                        {{ t.villeDepart }} → {{ t.villeArrivee }}
+                        le {{ t.dateDepart|date('d/m/Y H:i') }}
+                        — Statut: {{ t.status }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{% endblock %}

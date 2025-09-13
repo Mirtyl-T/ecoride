@@ -6,10 +6,10 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Vehicule;
-use App\Entity\User;
 
 class SearchTripType extends AbstractType
 {
@@ -43,10 +43,12 @@ class SearchTripType extends AbstractType
                 'required' => false,
                 'label' => 'Vos préférences'
             ])
-            ->add('typeFuel', ChoiceType::class, [
+            ->add('fuelType', ChoiceType::class, [
                 'required' => false,
                 'label' => 'Carburant / Énergie',
                 'choices' => array_combine(Vehicule::FUEL_TYPES, Vehicule::FUEL_TYPES)
             ]);
     }
+
+    
 }
