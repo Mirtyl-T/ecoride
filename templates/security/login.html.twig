@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+    
+    {% if error %}
+        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <h1>Se connecter</h1>
+    <form action="{{ path('app_login') }}" method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <label for="username">Email ou Nom d'utilisateur</label>
+        <input type="text" id="username" name="_username" required autofocus>
+        <br><br>
+
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="_password" required>
+        <br><br>
+
+        <button type="submit">Se connecter</button>
+
+        <p>Pas encore de compte ?</p>
+        <a href="{{ path('app_register') }}" class="btn btn-success btn-lg">
+        Créer un compte
+        </a>    
+    </form>
+
+{% endblock %}
