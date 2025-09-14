@@ -168,4 +168,70 @@ class TripController extends AbstractController
         return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
     }
 
+    #[Route('/trip/{id}/start', name: 'trip_start')]
+    public function start(Trip $trip, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CHAUFFEUR');
+
+        if ($this->getUser() !== $trip->getDriver()) {
+            $this->addFlash('danger', 'Vous n’êtes pas le chauffeur de ce trajet.');
+            return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+        }
+
+        if ($trip->getStatus() !== 'prévu') {
+            $this->addFlash('warning', 'Le trajet ne peut pas être démarré.');
+            return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+        }
+
+        $trip->setStatus('démarré');
+        $em->flush();
+
+        $this->addFlash('success', 'Trajet démarré !');
+        return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+    }
+
+    #[Route('/trip/{id}/end', name: 'trip_end')]
+    public function end(Trip $trip, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CHAUFFEUR');
+
+        if ($this->getUser() !== $trip->getDriver()) {
+            $this->addFlash('danger', 'Vous n’êtes pas le chauffeur de ce trajet.');
+            return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+        }
+
+        if ($trip->getStatus() !== 'démarré') {
+            $this->addFlash('warning', 'Le trajet doit être démarré avant de pouvoir être terminé.');
+            return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+        }
+
+        $trip->setStatus('terminé');
+        $em->flush();
+
+        $this->addFlash('success', 'Trajet terminé ! Merci d’avoir covoituré.');
+        return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+    }
+    #[Route('/trip/{id}/cancel-trip', name: 'trip_cancel_trip')]
+    public function cancelTrip(Trip $trip, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_CHAUFFEUR');
+
+        if ($this->getUser() !== $trip->getDriver()) {
+            $this->addFlash('danger', 'Vous n’êtes pas le chauffeur de ce trajet.');
+            return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+        }
+
+        $trip->setStatus('annulé');
+        $em->flush();
+
+        // TODO: Notifier tous les passagers inscrits
+        foreach ($trip->getParticipations() as $participation) {
+            $this->addFlash('danger', "Le trajet a été annulé. Passager concerné : {$participation->getUser()->getUsername()}");
+            // éventuellement envoyer un mail
+        }
+
+        return $this->redirectToRoute('trip_show', ['id' => $trip->getId()]);
+    }
+
+
 }

@@ -64,6 +64,18 @@
             <a href="{{ path('app_login') }}">Connectez-vous</a> pour réserver ce trajet.
         </p>
     {% endif %}
+    
+    {% if app.user and app.user.id == trip.driver.id %}
+        <h3>Actions chauffeur</h3>
+
+        {% if trip.status == 'prévu' %}
+            <a href="{{ path('trip_start', {id: trip.id}) }}" class="btn btn-success">Démarrer</a>
+            <a href="{{ path('trip_cancel_trip', {id: trip.id}) }}" class="btn btn-danger">Annuler</a>
+        {% elseif trip.status == 'démarré' %}
+            <a href="{{ path('trip_end', {id: trip.id}) }}" class="btn btn-primary">Terminer</a>
+        {% endif %}
+    {% endif %}
+
     {% if dejaInscrit %}
         <a href="{{ path('trip_cancel', {id: trip.id}) }}" class="btn btn-danger">
             Annuler ma réservation
