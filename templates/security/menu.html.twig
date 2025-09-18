@@ -5,7 +5,7 @@
                     <!--<li><a href="#contact-menu"><button>Contact</button></a></li>--!>
                     {% if app.user %}
                         <li><a href="{{ path('app_account') }}"><button>Mon Compte</button></a></li>
-                        <li><a href="{{ path('app_logout') }}"><button>Se déconnecter</button></a></li>
+                        <li><a href="{{ path('app_api_logout') }}"><button>Se déconnecter</button></a></li>
                     {% else %}
                         <li><a href="{{ path('app_login') }}"><button>Connexion</button></a></li>
                     {% endif %}

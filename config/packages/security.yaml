@@ -13,19 +13,33 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        public_api:
+            pattern: ^/api/(register|login)
+            security: false
+
+        api:
+            pattern: ^/api
+            provider: app_user_provider
+            custom_authenticator:
+                - App\Security\ApiTokenAuthenticator
+            logout:
+                path: app_api_logout
+                target: app_api_login
+
         main:
-            lazy: true
-            provider: app_user_provider   
-            pattern: ^/
-            custom_authenticator: App\Security\LoginFormAuthenticator
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
             logout:
                 path: app_logout
-            remember_me:
-                secret: '%kernel.secret%'
+                target: /
 
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
 
 
 when@test:

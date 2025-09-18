@@ -1,78 +1,84 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
-
 
 class SecurityController extends AbstractController
 {
-    #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function __construct(
+        private EntityManagerInterface $manager,
+        private UserRepository $userRepository
+    ) {}
+
+    // --- API registration (POST) ---
+    #[Route('/api/register', name: 'app_api_register', methods: ['POST'])]
+    public function registerApi(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
+        $data = json_decode($request->getContent(), true);
 
-        return $this->render('security/login.html.twig', [
-            'last_username' => $lastUsername,
-            'error' => $error,
-        ]);
-    }
+        if (!is_array($data) || empty($data['email']) || empty($data['username']) || empty($data['password'])) {
+            return new JsonResponse(['message' => 'Données manquantes ou invalides.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
 
-    #[Route('/register', name: 'app_register')]
-    public function register(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): Response {
+        $role = $data['role'] ?? 'ROLE_USER'; // valeur par défaut
+        if (!in_array($role, User::ROLES, true)) {
+            return new JsonResponse(['message' => 'Role invalide.'], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
         $user = new User();
-        $form = $this->createForm(RegistrationFormType::class, $user);
-        $form->handleRequest($request);
+        $user->setEmail($data['email']);
+        $user->setUsername($data['username']);
+        $user->setPassword($passwordHasher->hashPassword($user, $data['password']));
+        $user->setRoles([$role]); 
+        $user->generateApiToken();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
+        $this->manager->persist($user);
+        $this->manager->flush();
 
-            $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
-            $user->setPassword($hashedPassword);
+        return new JsonResponse([
+            'user' => $user->getUserIdentifier(),
+            'role' => $role,
+            'apiToken' => $user->getApiToken(),
+            'roles' => $user->getRoles(),
+        ], JsonResponse::HTTP_CREATED);
+    }
 
-            $user->setRoles(['ROLE_USER']);
+    // --- Login API (POST) ---
+    #[Route('/api/login', name: 'app_api_login', methods: ['POST'])]
+    public function apilogin(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $user = $this->userRepository->findOneBy(['email' => $data['email'] ?? '']);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_login');
+        if (!$user || !$passwordHasher->isPasswordValid($user, $data['password'] ?? '')) {
+            return new JsonResponse(['message' => 'Identifiants invalides'], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->render('registration/register.html.twig', [
-            'registrationForm' => $form->createView(),
+        return new JsonResponse([
+            'user'     => $user->getUserIdentifier(),
+            'apiToken' => $user->getApiToken(),
+            'roles'    => $user->getRoles(),
         ]);
     }
 
-    #[Route('/logout', name: 'app_logout')]
-    public function logout(): void
+    // --- Logout (POST) ---
+    #[Route('/api/logout', name: 'app_api_logout', methods: ['POST'])]
+    public function logout(): JsonResponse
     {
-
+        return new JsonResponse(['message' => 'Déconnecté'], Response::HTTP_OK);
     }
-    public function someAction(Security $security): Response
-        {
-            $response = $security->logout();
 
-            $response = $security->logout(false);
-
-        }
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-    {
-        return new RedirectResponse($this->urlGenerator->generate('home'));
-    }
-    
 }

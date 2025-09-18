@@ -38,7 +38,7 @@
                 <p>
                     {% if app.user %} 
                         Bonjour {{ app.user.username }} 
-                        <a href="{{ path('app_logout') }}">Se déconnecter</a> 
+                        <a href="{{ path('app_api_logout') }}">Se déconnecter</a> 
                         {% else %} <p>Vous n’êtes pas connecté.
                     </p> 
                     {% endif %}

@@ -9,7 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Entity\Vehicule;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -39,73 +38,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(options: ["default" => true])]
     private ?bool $actif = true;
 
-    #[ORM\Column(type: 'datetime')]
-    private ?\DateTimeInterface $date_creation = null;
+    #[ORM\Column(type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(type: 'boolean')]
     private bool $isVerified = false;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $apiToken = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private $isSuspended = false;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Vehicule::class, cascade: ['persist', 'remove'])]
     private Collection $vehicules;
 
     #[ORM\OneToMany(mappedBy: "driver", targetEntity: Trip::class)]
-    private $trips;    
-
-    #[ORM\Column(type: 'boolean')]
-    private $isSuspended = false;
-
-    public function isEnabled(): bool
-    {
-        return !$this->isSuspended;
-    }
-
-    public function getIsSuspended(): ?bool
-    {
-        return $this->isSuspended;
-    }
-
-    public function setIsSuspended(bool $isSuspended): self
-    {
-        $this->isSuspended = $isSuspended;
-        return $this;
-    }
-
-
-    public function __construct()
-    {
-        $this->vehicules = new ArrayCollection();
-        $this->date_creation = new \DateTime();
-        $this->trips = new ArrayCollection();
-    }
-
-    /**
-     * @return Collection<int, Vehicule>
-     */
-    public function getVehicules(): Collection
-    {
-        return $this->vehicules;
-    }
-
-    public function addVehicule(Vehicule $vehicule): self
-    {
-        if (!$this->vehicules->contains($vehicule)) {
-            $this->vehicules[] = $vehicule;
-            $vehicule->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeVehicule(Vehicule $vehicule): self
-    {
-        if ($this->vehicules->removeElement($vehicule)) {
-            if ($vehicule->getUser() === $this) {
-                $vehicule->setUser(null);
-            }
-        }
-
-        return $this;
-    }
+    private Collection $trips;
 
     public const ROLES = [
         'ROLE_USER',
@@ -114,6 +63,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'ROLE_EMPLOYE',
         'ROLE_ADMIN'
     ];
+
+    public function __construct()
+    {
+        $this->vehicules = new ArrayCollection();
+        $this->trips = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
+    // ------------------ Getters / Setters ------------------
 
     public function getId(): ?int
     {
@@ -139,11 +97,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-
         if (!in_array('ROLE_USER', $roles, true)) {
             $roles[] = 'ROLE_USER';
         }
-
         return array_unique($roles);
     }
 
@@ -154,10 +110,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 throw new \InvalidArgumentException("Role invalide : $role");
             }
         }
-           if (in_array('ROLE_ADMIN', $roles, true) && in_array('ROLE_EMPLOYE', $roles, true)) {
-                throw new \InvalidArgumentException("ROLE_ADMIN et ROLE_EMPLOYE sont exclusifs.");
-        }
-
         $this->roles = $roles;
         return $this;
     }
@@ -180,7 +132,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->username;
     }
 
-    public function setUsername(string $username): static
+    public function setUsername(string $username): self
     {
         $this->username = $username;
         return $this;
@@ -191,43 +143,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->credits;
     }
 
-    public function setCredits(?int $credits): static
+    public function setCredits(?int $credits): self
     {
         $this->credits = $credits;
         return $this;
     }
 
-    public function addCredits(int $amount): self
-    {
-        $this->credits += $amount;
-        return $this;
-    }
-
-    public function removeCredits(int $amount): self
-    {
-        $this->credits -= $amount;
-        return $this;
-    }
     public function isActif(): ?bool
     {
         return $this->actif;
     }
 
-    public function setActif(bool $actif): static
+    public function setActif(bool $actif): self
     {
         $this->actif = $actif;
         return $this;
     }
 
-
-    public function getDateCreation(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->date_creation;
+        return $this->createdAt;
     }
 
-    public function setDateCreation(?\DateTimeInterface $date_creation): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
-        $this->date_creation = $date_creation;
+        $this->createdAt = $createdAt;
         return $this;
     }
 
@@ -236,9 +176,70 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->isVerified;
     }
 
-    public function setIsVerified(bool $isVerified): static
+    public function setIsVerified(bool $isVerified): self
     {
         $this->isVerified = $isVerified;
         return $this;
+    }
+
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    public function generateApiToken(): self
+    {
+        $this->apiToken = bin2hex(random_bytes(30));
+        return $this;
+    }
+
+    public function getIsSuspended(): ?bool
+    {
+        return $this->isSuspended;
+    }
+
+    public function setIsSuspended(bool $isSuspended): self
+    {
+        $this->isSuspended = $isSuspended;
+        return $this;
+    }
+
+    public function isEnabled(): bool
+    {
+        return !$this->isSuspended;
+    }
+
+    // ------------------ Relations ------------------
+
+    /**
+     * @return Collection<int, Vehicule>
+     */
+    public function getVehicules(): Collection
+    {
+        return $this->vehicules;
+    }
+
+    public function addVehicule(Vehicule $vehicule): self
+    {
+        if (!$this->vehicules->contains($vehicule)) {
+            $this->vehicules[] = $vehicule;
+            $vehicule->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removeVehicule(Vehicule $vehicule): self
+    {
+        if ($this->vehicules->removeElement($vehicule)) {
+            if ($vehicule->getUser() === $this) {
+                $vehicule->setUser(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getTrips(): Collection
+    {
+        return $this->trips;
     }
 }

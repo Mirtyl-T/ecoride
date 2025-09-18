@@ -1,31 +1,50 @@
 {% extends 'base.html.twig' %}
 
-
 {% block body %}
-    {% include 'security/menu.html.twig' %}
-    
-    {% if error %}
-        <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+{% include 'security/menu.html.twig' %}
 
-    <h1>Se connecter</h1>
-    <form action="{{ path('app_login') }}" method="post">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+<h1>Se connecter</h1>
 
-        <label for="username">Email ou Nom d'utilisateur</label>
-        <input type="text" id="username" name="_username" required autofocus>
-        <br><br>
+<div id="error-message" style="color:red;"></div>
 
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="_password" required>
-        <br><br>
+<label for="username">Email ou Nom d'utilisateur</label>
+<input type="text" id="username" required autofocus>
+<br><br>
 
-        <button type="submit">Se connecter</button>
+<label for="password">Mot de passe</label>
+<input type="password" id="password" required>
+<br><br>
 
-        <p>Pas encore de compte ?</p>
-        <a href="{{ path('app_register') }}" class="btn btn-success btn-lg">
-        Créer un compte
-        </a>    
-    </form>
+<button id="login-btn">Se connecter</button>
 
+<p>Pas encore de compte ?</p>
+<a href="{{ path('app_register') }}" class="btn btn-success btn-lg">
+    Créer un compte
+</a>
+
+<script>
+document.getElementById('login-btn').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('{{ path("app_api_login") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+        console.log('Connecté ! Token :', data.apiToken);
+        // Stocker le token pour les requêtes API suivantes
+        localStorage.setItem('apiToken', data.apiToken);
+        // Redirection après login
+        window.location.href = '/'; 
+    } else {
+        document.getElementById('error-message').innerText = data.message;
+    }
+});
+</script>
 {% endblock %}

@@ -22,7 +22,11 @@ class RegistrationFormType extends AbstractType
             'label' => 'Nom d’utilisateur',
             'required' => true,
             ])
-            ->add('email')
+            ->add('email', TextType::class, [
+            'label' => 'Email',
+            'required' => true,
+            ])
+
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
                 'constraints' => [

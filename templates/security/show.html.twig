@@ -6,7 +6,7 @@
     {% include 'security/menu.html.twig' %}
 
     <h1>Détails du trajet</h1>
-    <h2>{{ trip.villeDepart }} → {{ trip.villeArrivee }}</h2>
+    <h2>{{ trip.villeDepart }} - {{ trip.villeArrivee }}</h2>
 
     <ul>
         <li><strong>Date et heure :</strong> {{ trip.dateDepart ? trip.dateDepart|date('d/m/Y H:i') : 'Non défini' }}</li>
