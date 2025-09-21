@@ -17,6 +17,7 @@
         "nelmio/cors-bundle": "*",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "1.27",
+        "symfony/apache-pack": "*",
         "symfony/asset": "7.0.*",
         "symfony/console": "7.0.*",
         "symfony/dotenv": "7.0.*",
@@ -67,11 +68,11 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "php bin/console cache:clear --env=prod || true",
+            "php bin/console cache:clear --env=prod",
             "php bin/console assets:install public --env=prod || true"
         ],
         "post-update-cmd": [
-            "php bin/console cache:clear --env=prod || true",
+            "php bin/console cache:clear --env=prod",
             "php bin/console assets:install public --env=prod || true"
         ]
     },
