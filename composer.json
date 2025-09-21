@@ -67,11 +67,11 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "php bin/console cache:clear --env=prod",
+            "php bin/console cache:clear --env=prod || true",
             "php bin/console assets:install public --env=prod || true"
         ],
         "post-update-cmd": [
-            "php bin/console cache:clear --env=prod",
+            "php bin/console cache:clear --env=prod || true",
             "php bin/console assets:install public --env=prod || true"
         ]
     },
