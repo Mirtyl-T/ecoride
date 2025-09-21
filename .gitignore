@@ -21,11 +21,3 @@ yarn-error.log
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
-
-
-.env
-.env.local
-.env.dev
-.env.test
-.env.prod
-.env.*.local
