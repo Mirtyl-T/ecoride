@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du trajet{% endblock %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+
+    <section class="trip-details-section">
+        <h1 class="trip-title">Détails du trajet</h1>
+        <h2 class="trip-subtitle">{{ trip.villeDepart }} → {{ trip.villeArrivee }}</h2>
+
+        <ul class="trip-info">
+            <li><strong>Date et heure :</strong> {{ trip.dateDepart ? trip.dateDepart|date('d/m/Y H:i') : 'Non défini' }}</li>
+            <li><strong>Places disponibles :</strong> {{ trip.placesDispo }}</li>
+            <li><strong>Prix :</strong> {{ trip.prix }} crédits</li>
+        </ul>
+
+        <h3>Chauffeur</h3>
+        {% set chauffeur = trip.driver %}
+        <ul class="trip-info">
+            <li><strong>Nom :</strong> {{ chauffeur ? chauffeur.username : 'Non défini' }}</li>
+        </ul>
+
+        <h3>Véhicule</h3>
+        {% set vehicule = trip.vehicule %}
+        <ul class="trip-info">
+            <li><strong>Marque :</strong> {{ vehicule ? vehicule.marque : 'Non défini' }}</li>
+            <li><strong>Modèle :</strong> {{ vehicule ? vehicule.modele : 'Non défini' }}</li>
+            <li><strong>Couleur :</strong> {{ vehicule ? vehicule.couleur : 'Non défini' }}</li>
+            <li><strong>Carburant :</strong> {{ vehicule ? vehicule.fuelType : 'Non défini' }}</li>
+            <li><strong>Immatriculation :</strong> {{ vehicule ? vehicule.immatriculation : 'Non défini' }}</li>
+        </ul>
+
+        <h3>Passagers</h3>
+        {% if trip.participations is empty %}
+            <p>Aucun passager pour le moment.</p>
+        {% else %}
+            <ul class="trip-passengers">
+                {% for participation in trip.participations %}
+                    <li>{{ participation.user.username }} — Réservé le {{ participation.dateParticipation|date('d/m/Y H:i') }} — Statut : {{ participation.statut }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% set dejaInscrit = false %}
+        {% for participation in trip.participations %}
+            {% if app.user and participation.user.id == app.user.id %}
+                {% set dejaInscrit = true %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="trip-actions">
+            {% if app.user %}
+                {% if dejaInscrit %}
+                    <p class="text-warning">Vous avez déjà réservé ce trajet.</p>
+                    <a href="{{ path('trip_cancel', {id: trip.id}) }}" class="btn btn-danger">Annuler ma réservation</a>
+                {% elseif not is_granted('ROLE_CHAUFFEUR') %}
+                    <!-- Bouton qui ouvre la modal -->
+                    <button type="button" class="btn btn-primary" id="btn-reserver">
+                        Réserver ce trajet
+                    </button>
+
+                    <!-- Modal Bootstrap -->
+                    <div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="reservationLabel">Confirmation de réservation</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Êtes-vous sûr de vouloir réserver ce trajet de 
+                                    <strong>{{ trip.villeDepart }}</strong> à 
+                                    <strong>{{ trip.villeArrivee }}</strong> ?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <form method="post" action="{{ path('trip_reserve', {id: trip.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reserve' ~ trip.id) }}">
+                                        <button type="submit" class="btn btn-success">Confirmer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p><a href="{{ path('app_login') }}">Connectez-vous</a> pour réserver ce trajet.</p>
+            {% endif %}
+
+            {% if app.user and app.user.id == trip.driver.id %}
+                <h3>Actions chauffeur</h3>
+                {% if trip.status == 'prévu' %}
+                    <a href="{{ path('trip_start', {id: trip.id}) }}" class="btn btn-success">Démarrer</a>
+                    <a href="{{ path('trip_cancel_trip', {id: trip.id}) }}" class="btn btn-danger">Annuler</a>
+                {% elseif trip.status == 'démarré' %}
+                    <a href="{{ path('trip_end', {id: trip.id}) }}" class="btn btn-primary">Terminer</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <p class="back-link"><a href="{{ path('trip_list') }}">← Retour à la liste des trajets</a></p>
+    </section>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const btn = document.getElementById("btn-reserver");
+      const modalEl = document.getElementById("reservationModal");
+
+      if (btn && modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+
+        btn.addEventListener("click", function () {
+          modal.show();
+        });
+      }
+    });
+    </script>
+{% endblock %}

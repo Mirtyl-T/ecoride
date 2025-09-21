@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include 'security/menu.html.twig' %}
+    
+    <h1>Avis en attente</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Passager</th>
+                <th>Chauffeur</th>
+                <th>Note</th>
+                <th>Commentaire</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+                <tr>
+                    <td>{{ review.userEmail }}</td>
+                    <td>{{ review.driverId}}</td>
+                    <td>{{ review.note }}</td>
+                    <td>{{ review.commentaire }}</td>
+                    <td>
+                        <a href="{{ path('app_review_valider', {id: review.id}) }}" class="btn btn-success btn-sm">Valider</a>
+                        <a href="{{ path('app_review_refuser', {id: review.id}) }}" class="btn btn-danger btn-sm">Refuser</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Aucun avis en attente</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% include 'security/incident.html.twig' %}
+
+{% endblock %}

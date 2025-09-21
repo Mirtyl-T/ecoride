@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="bgimage">
+      {% include 'security/menu.html.twig' %}
+    </div>
+
+    <div class="example-wrapper">
+      <main>
+        <section class="accueil-menu">
+          <div>
+            <a class="photo-accueil"
+              href="#"
+              aria-label="Photo d'illustration page d'Accueil">
+              <div class="bg-accueil"></div>
+            </a>
+
+            <br><br>
+
+            <em class="Description">
+              EcoRide : Réduire l’impact environnemental des déplacements grâce au covoiturage.
+            </em>
+            <br>
+            Notre plateforme met en relation chauffeurs et passagers pour des trajets en voiture,
+            avec une attention particulière à l’aspect écologique grâce aux véhicules électriques.
+          </div>
+        </section>
+      
+        <section class="Bonjour">
+          <p>
+            <br><br>
+            {% if app.user %}
+              Bonjour {{ app.user.username }}
+              <a href="{{ path('app_logout') }}"><div class="deconnexion">Se déconnecter</div></a>
+            {% else %}
+              Vous n’êtes pas connecté.
+            {% endif %}
+          </p>
+        </section>
+      </main>
+    </div>
+  {% endblock %}

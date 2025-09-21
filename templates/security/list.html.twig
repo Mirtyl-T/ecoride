@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {% include 'security/menu.html.twig' %}
+
+    <section class="search-section">
+        <h1 class="search-title">Rechercher un trajet</h1>
+
+        {{ form_start(form, { method: 'get', 'attr': {'class': 'search-form'} }) }}
+            {{ form_errors(form) }}
+
+            <div class="form-group">
+                {{ form_row(form.villeDepart) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.villeArrivee) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.dateDepart) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.prixMax) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.placesMin) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.preferences) }}
+            </div>
+            <div class="form-group">
+                {{ form_row(form.fuelType) }}
+            </div>
+
+            <button type="submit" class="form-button">Rechercher</button>
+        {{ form_end(form) }}
+    </section>
+
+    <section class="search-results">
+        <h2>Résultats</h2>
+        {% if not searchPerformed %}
+            <p>Veuillez lancer une recherche.</p>
+        {% elseif trips is empty %}
+            <p>Aucun trajet trouvé.</p>
+        {% else %}
+            <ul>
+                {% for trip in trips %}
+                    <li class="trip-item">
+                        <a href="{{ path('trip_show', {id: trip.id}) }}">
+                            {{ trip.villeDepart }} — {{ trip.villeArrivee }} — 
+                            {{ trip.dateDepart ? trip.dateDepart|date('d/m/Y H:i') : 'Date non définie' }} — 
+                            {{ trip.prix }} crédits — 
+                            Places restantes : {{ trip.placesDispo }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+{% endblock %}
